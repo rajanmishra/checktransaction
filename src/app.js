@@ -12,7 +12,7 @@ app.set('models', sequelize.models)
  * FIX ME!
  * @returns contract by id
  */
-app.get('/contracts/:id',getProfile ,async (req, res) =>{
+app.get('/contracts/:id', getProfile ,async (req, res) =>{
     const {Contract} = req.app.get('models')
     const {id} = req.params
     /* Not validating profileid it will already validated at the middleware layer */
@@ -25,7 +25,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
 /**
  * @returns all contract
  */
- app.get('/contracts',getProfile ,async (req, res) =>{
+ app.get('/contracts', getProfile ,async (req, res) =>{
     const {Contract} = req.app.get('models')
     /* Not validating profileid it will already validated at the middleware layer */
     const userId =  req.get('profile_id');
@@ -48,7 +48,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
 /**
  * @returns all unpaid job of a client or contractor
  */
- app.get('/jobs/unpaid',getProfile ,async (req, res) =>{
+ app.get('/jobs/unpaid', getProfile ,async (req, res) =>{
     const {Job, Contract} = req.app.get('models')
     /* Not validating profileid it will already validated at the middleware layer */
     const userId =  req.get('profile_id');
@@ -71,7 +71,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
 /**
  * @returns Pay for a job
  */
- app.patch('/jobs/:job_id/pay',getProfile ,async (req, res) =>{
+ app.patch('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
     const {Job, Contract, Profile} = req.app.get('models')
     const id =  req.params.job_id;
     if(!id) {
@@ -132,7 +132,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
 /**
  * @returns to deposit money
  */
- app.patch('/balances/deposit/:userId',getProfile ,async (req, res) =>{
+ app.patch('/balances/deposit/:userId', getProfile ,async (req, res) =>{
     const {Job, Contract, Profile} = req.app.get('models')
     const ClientId =  req.params.userId;
     if(!ClientId) {
@@ -184,7 +184,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
 /**
  * @returns all unpaid job of a client or contractor
  */
- app.get('/admin/best-profession',getProfile ,async (req, res) =>{
+ app.get('/admin/best-profession', getProfile ,async (req, res) =>{
     const {Job, Contract, Profile} = req.app.get('models')
     /* Not validating profileid it will already validated at the middleware layer */
     const startDate =  req.query.start;
@@ -206,7 +206,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
                 model: Profile,
                 attributes: ['profession'],
                 as: 'Contractor',
-                required: true,
+                required: true
             }] 
         }],
         group: ['Contract->Contractor.id'],
@@ -221,7 +221,7 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
 /**
  * @returns all unpaid job of a client or contractor
  */
- app.get('/admin/best-clients',getProfile ,async (req, res) =>{
+ app.get('/admin/best-clients', getProfile ,async (req, res) =>{
     const {Job, Contract, Profile} = req.app.get('models')
     /* Not validating profileid it will already validated at the middleware layer */
     const startDate =  req.query.start;
@@ -234,23 +234,26 @@ app.get('/contracts/:id',getProfile ,async (req, res) =>{
         where.createdAt =  { [Op.gte] : startDate, [Op.lte] : endDate};
     }
     const amountSum = await Job.findAll({
-        attributes: [ [Job.sequelize.fn('sum', Job.sequelize.col('price')), 'total_spent']],
+        attributes: ['id', [Job.sequelize.literal("firstName || ' ' || lastName"), 'fullName'], ['Price', 'Paid']],
         required: true,
         where: where,
         include: [{
             model: Contract,
+            attributes: [],
             required: true,
             include: [{
                 model: Profile,
                 as: 'Client',
+                attributes: [],
                 required: true,
             }] 
         }],
         group: ['Contract->Client.id'],
-        order : [[Job.sequelize.fn('sum', Job.sequelize.col('price')), 'DESC']],
+        order : [[Job.sequelize.col('price'), 'DESC']],
         offset:0,
         limit : limit,
-        subQuery:false
+        subQuery:false,
+        raw: true
     });
     if(!amountSum) return res.status(404).end()
     res.json(amountSum)
