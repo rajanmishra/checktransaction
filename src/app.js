@@ -71,7 +71,7 @@ app.get('/contracts/:id', getProfile ,async (req, res) =>{
 /**
  * @returns Pay for a job
  */
- app.patch('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
+ app.post('/jobs/:job_id/pay', getProfile ,async (req, res) =>{
     const {Job, Contract, Profile} = req.app.get('models')
     const id =  req.params.job_id;
     if(!id) {
@@ -132,7 +132,7 @@ app.get('/contracts/:id', getProfile ,async (req, res) =>{
 /**
  * @returns to deposit money
  */
- app.patch('/balances/deposit/:userId', getProfile ,async (req, res) =>{
+ app.post('/balances/deposit/:userId', getProfile ,async (req, res) =>{
     const {Job, Contract, Profile} = req.app.get('models')
     const ClientId =  req.params.userId;
     if(!ClientId) {
