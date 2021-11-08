@@ -218,6 +218,7 @@ app.get('/contracts/:id', getProfile ,async (req, res) =>{
     if(!priceSum || !priceSum[0]) return res.status(404).end()
     res.json(priceSum[0].Contract.Contractor.profession)
 })
+
 /**
  * @returns all unpaid job of a client or contractor
  */
